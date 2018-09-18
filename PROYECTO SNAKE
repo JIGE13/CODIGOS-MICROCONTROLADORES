@@ -1,0 +1,157 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include "config.h"
+#define _XTAL_FREQ 32000000
+
+////////////////////////////////////////DECLARACION DE LAS VARIABLES PARA EL PROGRAMA//////////////////////////////////////////
+    
+    int boton;                                         //dar valor a los botones 
+    int c=0;                                           //conteo de los ciclos
+    int crecer=1;                                      //Variable que aumenta conforme come y crece la cola
+    int rfila[8]={252,253,251,247,239,223,191,127};   //vector para el recorrido de la fila
+    int rcolumna[8]={10,32,16,8,4,2,1};           //vector para el recorrido de la columna 
+    int X[36],Y[36];                                  //Arreglos para guardar las posiciones X y Y de la cabeza y la cola
+    int i=0;                                          //Variable para el conteo en el ciclo For 
+    int XP=0;           //Variable para la posicion en fila de la serpiente
+    int Y1=0;           //Variable para la posicion en columna de la serpiente
+    int x=0;            //Variable para la posicion en fila de la comida
+    int y=0;            //Variable para la posicion en columna de la comida
+    
+void delay_ms(int n)    //Funcion para poder agregar variables al tiempo
+{
+    while(n--){__delay_ms(1);}
+}
+
+int main(void) {
+    
+    //CONFIGURACION DEL OSCILADOR 
+    OSCFRQbits.HFFRQ=0b110;
+     
+    PORTC=0;
+    PORTB=0;
+    PORTA=0;
+    //configuracion de los puertos como digitales
+    ANSELA=0b00000000;
+    ANSELB=0b00000000;
+    ANSELC=0b00000000;
+ 
+    TRISB=0;//puerto B como salida
+    TRISC=0;//puerto c como salida
+    TRISA=0b00001111;// pueto A como entradas
+    //pull up activadas para las entradas seleccionadas
+    WPUAbits.WPUA0=1;
+    WPUAbits.WPUA1=1;
+    WPUAbits.WPUA2=1;
+    WPUAbits.WPUA3=1;
+    
+    //funcion rand() funcion aleatoria para que la comida aparesca en diversos lugares de la matriz 
+    
+    x = rand() % 7 + 0;         
+    y = rand() % 7 + 0;         
+    
+    while(1){
+    
+    c++;                       
+    
+    
+      //boton arriba
+        if(PORTAbits.RA0==0){
+            __delay_ms(250);
+            if(boton==2){boton=2;}
+            else{ boton=1;}}
+        
+    //boton abajo
+        if(PORTAbits.RA1==0){
+            __delay_ms(250);
+            if(boton==1){ boton=1;}
+            else{ boton=2;}}
+        
+      
+        // boton derecha
+        if(PORTAbits.RA2==0){
+            __delay_ms(250);
+            if(boton==3){ boton=3;}
+            else{ boton=4;}}
+        
+        // boton izquierda
+        if(PORTAbits.RA3==0){
+            __delay_ms(250);
+            if(boton==4){boton=4;}
+            else{boton=3;}}
+    
+    
+    
+   
+    X[1]=rfila[XP];          //Guarda en la posicion 1 del arreglo en X el valor de la posicion donde se encuentra la cabeza 
+    Y[1]=rcolumna[Y1];       //Guarda en la posicion 1 del Arreglo en Y el valor de la posicion donde se encuentra la cabeza
+        
+    for(i=crecer;i>=0;i--){  //Cada que la i sea mayor-igual a 0 entrara en el ciclo, ira aumentando conforme va creciendo la cola 
+        
+    if(i==0){
+    
+    PORTC=rfila[x];         //Muestra en la matriz la posicion en x de la comida
+    PORTB=rcolumna[y];      //Muestra en la matriz la posicion en y de la comida
+    
+    if(XP==x && Y1==y){     //Cuando la cabeza y la comida tiene la misma posicion 
+    crecer++;               //La variable crecer aumenta y define el largo de la cola 
+    x = rand() % 7 + 0;     //Guarda un valor elegido al azar del 0 al 7 con la funcion Rand en la variable x
+    y = rand() % 7 + 0;}    //Guarda un valor elegido al azar del 0 al 7 con la funcion Rand en la variable y
+    
+    delay_ms(1);            //Se da un retardo de 1 milisegundo
+    PORTC=255;}             //Se apaga la matriz
+
+    else{ 
+    if(rfila[XP]==X[i+1] && rcolumna[Y1]==Y[i+1]){ //Cuando la posicion de la cabeza es igual a la posicion de la cola
+    PORTC=0;                                       //Pone en cero el puerto c para encerder todos los leds de la matriz
+    PORTB=255;                                     //Pone en alto el Puerto b
+    __delay_ms(2000);                              //Espera dos segundos  
+    return;}                                       //Se sale del while y comienza de nuevo
+    
+                    
+    
+    PORTC=X[i];             //Se muestra en la matriz la posicion en x la cabeza y la cola 
+    PORTB=Y[i];             //Se muestra en la matriz la posicion en y la cabeza y la cola 
+    delay_ms(25/crecer);         //Espera un tiempo y conforme va creciendo va disminuyedo el delay aumentando la velocidad
+    PORTC=255;}             //Se apaga la matriz
+  
+    }
+    
+    if(c>10){               //entra en la condicion cada 10 flasheos, aumenta o disminuye la velocidad 
+    if(boton==4){XP++;}         //Aumenta la variable conforme a la direcion en X
+    if(boton==3){XP--;}         //Disminuye la variable conforme a la direcion en X
+    if(boton==2){Y1--;}         //Disminuye la variable conforme a la direcion en Y
+    if(boton==1){Y1++;}         //Aumenta la variable conforme a la direcion en Y
+    															
+      if (XP > 7){
+        PORTC=0;
+        PORTB=255;
+        __delay_ms(1000);
+    return;}    
+    
+ 
+    if (Y1 > 7){
+       PORTC=0;
+        PORTB=255;
+        __delay_ms(1000);
+    return;}
+    if (XP < 0){
+       PORTC=0;
+        PORTB=255;
+        __delay_ms(1000);
+    return;}    
+    if (Y1 < 0){
+       PORTC=0;
+        PORTB=255;
+        __delay_ms(1000);
+    return;}  
+
+    for(i=crecer;i>1;i--){       
+    X[i]=X[i-1];            //Guarda en el arreglo las posiciones de la cabeza y la cola en X, recorriendose conforme al movimiento 
+    Y[i]=Y[i-1];}           //Guarda en el arreglo las posiciones de la cabeza y la cola en Y, recorriendose conforme al movimiento 
+
+    c=0;}}                  //Se pone a cero la variable c
+    ///////////////////////////////////////////////////////////////////
+    
+    
+    return (0);
+}
