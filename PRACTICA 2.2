@@ -1,0 +1,34 @@
+#define _XTAL_FREQ 32000000 //configuracion de frecuencia
+#include <xc.h>  // libreria 
+#include "registro.h"  //configuraciones necesarias
+
+void main(void) {
+    
+  OSCFRQbits.HFFRQ=0b110;
+    PORTD=0;//lIMPIEZA DE LOS PUERTOS
+    PORTB=0;
+    ANSELD=0b00000000;// SE DECLARAN LOS PUERTOS D Y B COMO DIGITALES
+    ANSELB=0b00000000;
+    TRISBbits.TRISB0=1;//DECLARACION DE LOS PUERTOS B0 Y B1 COMO ENTRADA
+    TRISBbits.TRISB1=1;
+    TRISDbits.TRISD2=0;//SE DECLARAN COMO SALIDA LOS PUERTOS D2 Y D3
+    TRISDbits.TRISD3=0;
+    WPUBbits.WPUB0=1;
+    WPUBbits.WPUB1=1;
+    
+    while(1){
+        /*CONDICINAL PARA LA DETECCCION DE UN ESTADO BAJO EN ELPUERTO
+         *  B0 EL CUAL CUENTA CON SU RESISTENCIA PULL UP ACTIVA */
+        
+        if(PORTBbits.RB0==0){
+        __delay_ms(200);
+        LATDbits.LATD2=LATDbits.LATD2+1;
+        }
+        
+        if(PORTBbits.RB1==0){
+        __delay_ms(200);
+        LATDbits.LATD3=LATDbits.LATD3+1;
+        }
+    }
+    return;
+}
