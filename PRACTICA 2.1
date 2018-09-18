@@ -1,0 +1,26 @@
+#define _XTAL_FREQ 32000000
+#include <xc.h>
+#include "registros.h"
+
+
+void main(void) {
+    
+    OSCFRQbits.HFFRQ=0b110;
+    
+  
+    PORTD= 0; 
+    ANSELD=0b00000000;
+    TRISD=0b00000010;
+    
+    
+    while (1) { 
+        
+        LATDbits.LATD2=LATDbits.LATD2 + 1;
+        
+      __delay_ms(500);
+      
+      
+    return;
+    
+    }
+}
