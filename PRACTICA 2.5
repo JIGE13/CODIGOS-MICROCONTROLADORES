@@ -1,0 +1,58 @@
+#include <xc.h>
+#include "registros.h"
+#define _XTAL_FREQ 32000000
+#include <stdio.h>
+#include "flex_lcd.h"
+
+void main(void) {
+     //variables
+    int adc;
+    int adc1;
+    float temperatura;
+    float voltaje;
+    unsigned char buffer1[16];
+    //oscilador
+    OSCFRQbits.HFFRQ=0b110; //32 MHz HFINTOSC
+    //PUERTOS
+    ANSELD=0; //PUERTO D COMO  DIGITAL
+    ANSELE=0;// PUERTO E COMO DIGITAL
+    ANSELAbits.ANSA5=1; //RA5 COMO ANALOGICO
+    ANSELAbits.ANSA4=1;
+    TRISAbits.TRISA5=1; // RA5 COMO ENTRADA
+    TRISAbits.TRISA4=1;  // RA4 COMO ENTRADA
+    // CONVERTIDOR ANALOGICO A DIGITAL
+    ADCON0bits.ADON=1; //ADC ON
+    ADCON0bits.ADCONT=0; //OPERACION NORMAL
+    ADCON0bits.ADCS=1; //CLOCK SOUERCE=FCR
+    ADCON0bits.ADFRM=1; //JUSTIFICACION DERECHA
+    ADREFbits.ADNREF=0; //Vref- --->>Vss
+    ADREFbits.ADPREF=00; //Vref+ --->Vdd
+    ADPCH=0b000101; //CANAL ANA5
+    ADPCH=0b000100; //CANAL ANA4
+    
+    
+    //*********************LCD
+    Lcd_Init();// INICIALIZACION DE LA LCD
+    Lcd_Cmd(1);//CLEAR ALL
+    Lcd_Cmd(12);//CURSORF OFF
+    __delay_ms(100);//TIEMPO SUFICIENTE EN EL QUE SE CARGA EL CAPACITOR
+    //CICLO WHILE
+    while (1) {
+        
+   
+        
+        ADCON0bits.ADGO=1;// INICIA LA CONVERSION
+        while (ADCON0bits.ADGO==1);// ESPERA EL TERMINO DE CONVERSION
+        adc1=(ADRESH<<8) |ADRESL; 
+        temperatura=adc1*100.0;
+        sprintf(buffer1,"temperatura=%03d",temperatura);
+        Lcd_Out2(2,1,buffer1);
+        
+        __delay_ms(300);
+         
+        
+    }
+    
+
+    return;
+}
